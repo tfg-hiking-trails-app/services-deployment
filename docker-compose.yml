@@ -6,6 +6,7 @@ services:
     build:
       context: ./../auth-service
       dockerfile: AuthService/Dockerfile
+    restart: always
     env_file:
       - ./config/auth-service.env
     ports:
@@ -16,6 +17,7 @@ services:
   db-auth-service:
     container_name: db-auth-service
     image: mariadb:lts-noble
+    restart: always
     env_file:
       - ./config/auth-service.env
     ports:
