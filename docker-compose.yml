@@ -5,7 +5,7 @@ services:
     container_name: auth-service
     build:
       context: ./../auth-service
-      dockerfile: AuthService/Dockerfile
+      dockerfile: AuthService.API/Dockerfile
     restart: always
     env_file:
       - ./config/auth-service.env
