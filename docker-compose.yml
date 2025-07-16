@@ -9,8 +9,8 @@ services:
     restart: always
     env_file:
       - ./config/auth-service.env
-    ports:
-      - "5000:8080"
+    expose:
+      - "8080"
     depends_on:
       - db-auth-service
 
