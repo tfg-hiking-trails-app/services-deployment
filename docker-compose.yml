@@ -10,7 +10,7 @@ services:
     env_file:
       - ./config/auth-service.env
     expose:
-      - "8080"
+      - "8080" # The microservice is no longer exposed externally so that it can only be accessed internally through my API Gateway.
     depends_on:
       - db-auth-service
 
