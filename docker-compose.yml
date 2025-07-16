@@ -1,6 +1,19 @@
-name: TFG-Hiking-Trails-App
+name: tfg-hiking-trails-app
 
 services:
+  api-gateway:
+    container_name: api-gateway
+    build:
+      context: ./../api-gateway
+      dockerfile: HikingTrails.ApiGateway/Dockerfile
+    restart: always
+    env_file:
+      - ./config/auth-service.env
+    ports:
+      - '5000:8080'
+    depends_on:
+      - auth-service
+
   auth-service:
     container_name: auth-service
     build:
@@ -10,7 +23,7 @@ services:
     env_file:
       - ./config/auth-service.env
     expose:
-      - "8080" # The microservice is no longer exposed externally so that it can only be accessed internally through my API Gateway.
+      - '8080' # The microservice is no longer exposed externally so that it can only be accessed internally through my API Gateway.
     depends_on:
       - db-auth-service
 
