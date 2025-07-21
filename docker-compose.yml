@@ -41,5 +41,33 @@ services:
       # Script to initialize the database
       - ./scripts/auth-service:/docker-entrypoint-initdb.d:ro
 
+  hiking-trail-service:
+    container_name: hiking-trail-service
+    build:
+      context: ./../hiking-trail-service
+      dockerfile: HikingTrailService.API/Dockerfile
+    restart: always
+    env_file:
+      - ./config/hiking-trail-service.env
+    expose:
+      - '8080'
+    depends_on:
+      - db-hiking-trail-service
+
+  db-hiking-trail-service:
+    container_name: db-hiking-trail-service
+    image: mariadb:12.0.1-ubi9-rc
+    restart: always
+    env_file:
+      - ./config/hiking-trail-service.env
+    ports:
+      - '3307:3306'
+    volumes:
+      # This volume is used to persist the database data
+      - db-hiking-trail-service:/var/lib/mysql
+      # Script to initialize the database
+      - ./scripts/hiking-trail-service:/docker-entrypoint-initdb.d:ro
+
 volumes:
   db-auth-service:
+  db-hiking-trail-service:
