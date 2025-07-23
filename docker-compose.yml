@@ -68,6 +68,34 @@ services:
       # Script to initialize the database
       - ./scripts/hiking-trail-service:/docker-entrypoint-initdb.d:ro
 
+  fit-data-service:
+    container_name: fit-data-service
+    build:
+      context: ./../fit-data-service
+      dockerfile: FitDataService.Processor/Dockerfile
+    restart: always
+    env_file:
+      - ./config/fit-data-service.env
+    expose:
+      - '8080'
+    depends_on:
+      - db-fit-data-service
+
+  db-fit-data-service:
+    container_name: db-fit-data-service
+    image: mongo:7.0.22
+    restart: always
+    env_file:
+      - ./config/fit-data-service.env
+    ports:
+      - '27017:27017'
+    volumes:
+      # This volume is used to persist the database data
+      - db-fit-data-service:/data/db
+      # Script to initialize the database
+      - ./scripts/fit-data-service:/docker-entrypoint-initdb.d:ro
+
 volumes:
   db-auth-service:
   db-hiking-trail-service:
+  db-fit-data-service:
