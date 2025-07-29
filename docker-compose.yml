@@ -13,6 +13,8 @@ services:
       - '5000:8080'
     depends_on:
       - auth-service
+      - hiking-trail-service
+      - fit-data-service
 
   auth-service:
     container_name: auth-service
@@ -51,6 +53,8 @@ services:
       - ./config/hiking-trail-service.env
     expose:
       - '8080'
+    volumes:
+      - fit-files:/shared/data
     depends_on:
       - db-hiking-trail-service
 
@@ -72,21 +76,24 @@ services:
     container_name: fit-data-service
     build:
       context: ./../fit-data-service
-      dockerfile: FitDataService.Processor/Dockerfile
+      dockerfile: FitDataService.Consumer/Dockerfile
     restart: always
     env_file:
-      - ./config/fit-data-service.env
+      - ./config/hiking-trail-service.env
     expose:
       - '8080'
+    volumes:
+      - fit-files:/shared/data
     depends_on:
       - db-fit-data-service
+      - rabbitmq
 
   db-fit-data-service:
     container_name: db-fit-data-service
     image: mongo:7.0.22
     restart: always
     env_file:
-      - ./config/fit-data-service.env
+      - ./config/hiking-trail-service.env
     ports:
       - '27017:27017'
     volumes:
@@ -95,7 +102,18 @@ services:
       # Script to initialize the database
       - ./scripts/fit-data-service:/docker-entrypoint-initdb.d:ro
 
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - '5672:5672' # RabbitMQ port
+      - '15672:15672' # Management UI
+    env_file:
+      - ./config/hiking-trail-service.env
+
 volumes:
   db-auth-service:
   db-hiking-trail-service:
   db-fit-data-service:
+  fit-files:
