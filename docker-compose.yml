@@ -19,8 +19,8 @@ services:
   auth-service:
     container_name: auth-service
     build:
-      context: ./../auth-service
-      dockerfile: AuthService.API/Dockerfile
+      context: ./..
+      dockerfile: auth-service/AuthService.API/Dockerfile
     restart: always
     env_file:
       - ./config/auth-service.env
@@ -46,8 +46,8 @@ services:
   hiking-trail-service:
     container_name: hiking-trail-service
     build:
-      context: ./../hiking-trail-service
-      dockerfile: HikingTrailService.API/Dockerfile
+      context: ./..
+      dockerfile: hiking-trail-service/HikingTrailService.API/Dockerfile
     restart: always
     env_file:
       - ./config/hiking-trail-service.env
