@@ -1,6 +1,17 @@
 name: tfg-hiking-trails-app
 
 services:
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - '5672:5672' # RabbitMQ port
+      - '15672:15672' # Management UI
+    env_file:
+      - ./config/hiking-trail-service.env
+
   api-gateway:
     container_name: api-gateway
     build:
@@ -57,6 +68,7 @@ services:
       - fit-files:/shared/data
     depends_on:
       - db-hiking-trail-service
+      - rabbitmq
 
   db-hiking-trail-service:
     container_name: db-hiking-trail-service
@@ -75,8 +87,8 @@ services:
   fit-data-service:
     container_name: fit-data-service
     build:
-      context: ./../fit-data-service
-      dockerfile: FitDataService.Worker/Dockerfile
+      context: ./..
+      dockerfile: fit-data-service/FitDataService.Worker/Dockerfile
     restart: always
     env_file:
       - ./config/hiking-trail-service.env
@@ -101,16 +113,6 @@ services:
       - db-fit-data-service:/data/db
       # Script to initialize the database
       - ./scripts/fit-data-service:/docker-entrypoint-initdb.d:ro
-
-  rabbitmq:
-    image: rabbitmq:3.13-management-alpine
-    container_name: rabbitmq
-    restart: always
-    ports:
-      - '5672:5672' # RabbitMQ port
-      - '15672:15672' # Management UI
-    env_file:
-      - ./config/hiking-trail-service.env
 
 volumes:
   db-auth-service:
