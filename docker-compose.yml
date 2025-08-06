@@ -11,6 +11,11 @@ services:
       - '15672:15672' # Management UI
     env_file:
       - ./config/hiking-trail-service.env
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   api-gateway:
     container_name: api-gateway
@@ -97,8 +102,10 @@ services:
     volumes:
       - fit-files:/shared/data
     depends_on:
-      - db-fit-data-service
-      - rabbitmq
+      db-fit-data-service:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
 
   db-fit-data-service:
     container_name: db-fit-data-service
