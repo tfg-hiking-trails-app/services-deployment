@@ -93,7 +93,7 @@ services:
     container_name: fit-data-service
     build:
       context: ./..
-      dockerfile: fit-data-service/FitDataService.Worker/Dockerfile
+      dockerfile: fit-data-service/FitDataService.API/Dockerfile
     restart: always
     env_file:
       - ./config/hiking-trail-service.env
