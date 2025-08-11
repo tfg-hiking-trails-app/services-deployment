@@ -29,6 +29,7 @@ services:
       - '5000:8080'
     depends_on:
       - auth-service
+      - account-service
       - hiking-trail-service
       - fit-data-service
 
@@ -58,6 +59,33 @@ services:
       - db-auth-service:/var/lib/mysql
       # Script to initialize the database
       - ./scripts/auth-service:/docker-entrypoint-initdb.d:ro
+
+  account-service:
+    container_name: account-service
+    build:
+      context: ./..
+      dockerfile: account-service/AccountService.API/Dockerfile
+    restart: always
+    env_file:
+      - ./config/account-service.env
+    expose:
+      - '8080' # The microservice is no longer exposed externally so that it can only be accessed internally through my API Gateway.
+    depends_on:
+      - db-account-service
+
+  db-account-service:
+    container_name: db-account-service
+    image: mariadb:12.0.1-ubi9-rc
+    restart: always
+    env_file:
+      - ./config/account-service.env
+    ports:
+      - '3308:3306'
+    volumes:
+      # This volume is used to persist the database data
+      - db-account-service:/var/lib/mysql
+      # Script to initialize the database
+      - ./scripts/account-service:/docker-entrypoint-initdb.d:ro
 
   hiking-trail-service:
     container_name: hiking-trail-service
@@ -123,6 +151,7 @@ services:
 
 volumes:
   db-auth-service:
+  db-account-service:
   db-hiking-trail-service:
   db-fit-data-service:
   fit-files:
