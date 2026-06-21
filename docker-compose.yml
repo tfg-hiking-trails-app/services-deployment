@@ -13,9 +13,10 @@ services:
       - ./config/hiking-trail-service.env
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
 
   api-gateway:
     container_name: api-gateway
@@ -28,10 +29,38 @@ services:
     ports:
       - '5000:8080'
     depends_on:
+      - location-service
       - auth-service
       - account-service
       - hiking-trail-service
       - fit-data-service
+
+  location-service:
+    container_name: location-service
+    build:
+      context: ./..
+      dockerfile: location-service/LocationService.API/Dockerfile
+    restart: always
+    env_file:
+      - ./config/location-service.env
+    expose:
+      - '8080' # The microservice is no longer exposed externally so that it can only be accessed internally through my API Gateway.
+    depends_on:
+      - db-location-service
+
+  db-location-service:
+    container_name: db-location-service
+    image: mariadb:12.0.1-ubi9-rc
+    restart: always
+    env_file:
+      - ./config/location-service.env
+    ports:
+      - '3309:3306'
+    volumes:
+      # This volume is used to persist the database data
+      - db-location-service:/var/lib/mysql
+      # Script to initialize the database
+      - ./scripts/location-service:/docker-entrypoint-initdb.d:ro
 
   auth-service:
     container_name: auth-service
@@ -105,7 +134,7 @@ services:
 
   db-hiking-trail-service:
     container_name: db-hiking-trail-service
-    image: mariadb:12.0.1-ubi9-rc
+    image: mysql:8.4
     restart: always
     env_file:
       - ./config/hiking-trail-service.env
@@ -150,6 +179,7 @@ services:
       - ./scripts/fit-data-service:/docker-entrypoint-initdb.d:ro
 
 volumes:
+  db-location-service:
   db-auth-service:
   db-account-service:
   db-hiking-trail-service:
